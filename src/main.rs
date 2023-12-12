@@ -16,12 +16,6 @@ use item_listing_page::ItemListingPage;
 use shopping_lists_page::ShoppingListsPage;
 use uuid::Uuid;
 
-fn abc(cx: Scope) -> Element {
-    render! {
-        div { "woo hoo" }
-    }
-}
-
 fn main() {
     let config = LaunchBuilder::<FullstackRouterConfig<Route>>::router();
     #[cfg(feature = "ssr")]
@@ -40,6 +34,7 @@ fn main() {
                 let config =
                     ServeConfigBuilder::new_with_router(FullstackRouterConfig::<Route>::default());
 
+                // add Axum State for Postgres connection pool
                 let app = axum::Router::new()
                     .serve_dioxus_application("", config)
                     .into_make_service();
