@@ -1,4 +1,7 @@
 use crate::common_types::*;
+use dioxus::prelude::*;
+use dioxus_fullstack::prelude::*;
+use log::info;
 use uuid::Uuid;
 
 #[cfg(feature = "ssr")]
@@ -18,7 +21,7 @@ pub async fn get_pg_pool() -> Result<Pool<Postgres>, sqlx::Error> {
     let port = 5432;
     let dbname = "postgres";
     let connect_string = format!("postgres://{username}:{password}@{hostname}:{port}/{dbname}");
-    println!("connecting to {connect_string}");
+    info!("connecting to {connect_string}");
     PgPoolOptions::new()
         .max_connections(5)
         .connect(&connect_string)

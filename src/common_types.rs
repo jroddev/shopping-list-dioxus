@@ -1,10 +1,25 @@
 use chrono::{DateTime, Utc};
 use dioxus::prelude::*;
 use dioxus_fullstack::prelude::*;
+use log::{error, info};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::postgres;
+use crate::postgres::{self};
+
+#[server(InsertNewItem)]
+pub async fn insert_new_item(id: Uuid, new_item_text: String) -> Result<(), ServerFnError> {
+    match postgres::create_list_item(&new_item_text, id).await {
+        Ok(row) => {
+            info!("Inserted: {row:?}");
+            Ok(())
+        }
+        Err(e) => {
+            error!("Error inserting item {new_item_text} in list {id}: {e}");
+            Err(ServerFnError::ServerError("Failed to add item".to_string()))
+        }
+    }
+}
 
 #[server(GetItems)]
 pub async fn get_items(list_id: Uuid) -> Result<Vec<Item>, ServerFnError> {

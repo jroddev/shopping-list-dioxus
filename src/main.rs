@@ -3,6 +3,7 @@
 use dioxus::prelude::*;
 use dioxus_fullstack::prelude::*;
 use dioxus_router::prelude::*;
+use log::{info, LevelFilter};
 
 #[cfg(feature = "ssr")]
 use tokio::net::TcpListener;
@@ -17,6 +18,7 @@ use shopping_lists_page::ShoppingListsPage;
 use uuid::Uuid;
 
 fn main() {
+    dioxus_logger::init(LevelFilter::Info).expect("failed to init logger");
     let config = LaunchBuilder::<FullstackRouterConfig<Route>>::router();
     #[cfg(feature = "ssr")]
     {

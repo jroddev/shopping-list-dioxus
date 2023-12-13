@@ -766,6 +766,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "dioxus-logger"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d7cbab0b5519060fe9e14b3c21e3f2329b8386cd905618f78c7b929cd00cf54"
+dependencies = [
+ "log",
+ "web-sys",
+]
+
+[[package]]
 name = "dioxus-router"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2620,8 +2630,10 @@ dependencies = [
  "chrono",
  "dioxus",
  "dioxus-fullstack",
+ "dioxus-logger",
  "dioxus-router",
  "dioxus-web",
+ "log",
  "serde",
  "sqlx",
  "tokio",
