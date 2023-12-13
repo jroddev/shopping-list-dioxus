@@ -11,6 +11,10 @@ cargo run --features ssr --release
 Based off https://github.com/jroddev/sqlx-example
 
 ```
+# start Postgres
+podman-compose up -d
+
+# install sqlx cli tool
 cargo install sqlx-cli
 
 # create a nenw DB migrations
