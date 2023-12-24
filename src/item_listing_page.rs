@@ -5,7 +5,7 @@ use log::{error, info};
 use uuid::Uuid;
 
 use crate::{
-    common_types::{get_items, insert_new_item, Item},
+    common_types::{get_items, get_list, insert_new_item, Item},
     dialog_wrapper::DialogWrapper,
     Route,
 };
@@ -23,6 +23,7 @@ async fn refresh_items(id: &Uuid, item_state: &UseState<Option<Vec<Item>>>) {
 #[inline_props]
 pub fn ItemListingPage(cx: Scope, id: Uuid) -> Element {
     let default_items: Option<Vec<Item>> = None;
+    let page_name = use_state(cx, || "".to_string());
     let item_state = use_state(cx, || default_items);
     let add_dialog_open = use_state(cx, || false);
     let new_item_text = use_state(cx, || "".to_string());
@@ -35,6 +36,19 @@ pub fn ItemListingPage(cx: Scope, id: Uuid) -> Element {
         }
     });
 
+    use_effect(&cx, (), |()| {
+        to_owned![id];
+        to_owned![page_name];
+        async move {
+            match get_list(id).await {
+                Ok(data) => page_name.set(data.name),
+                Err(e) => {
+                    error!("error loading list: {}", e);
+                }
+            };
+        }
+    });
+
     match item_state.get() {
         Some(items) => {
             render! {
@@ -44,7 +58,7 @@ pub fn ItemListingPage(cx: Scope, id: Uuid) -> Element {
                         "back"
                     }
                 }
-                h3 { "List {id}" }
+                h3 { "{page_name}" }
 
                 ul {
                     for item in items {

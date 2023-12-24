@@ -38,6 +38,24 @@ pub async fn get_items(list_id: Uuid) -> Result<Vec<Item>, ServerFnError> {
     }
 }
 
+#[server(GetList)]
+pub async fn get_list(id: Uuid) -> Result<List, ServerFnError> {
+    println!("get_list");
+
+    match postgres::get_shopping_list(id).await {
+        Ok(list) => {
+            println!("got the list: {:?}", list);
+            Ok(list)
+        }
+        Err(e) => {
+            eprintln!("error grabbing list: {:?}", e);
+            Err(ServerFnError::ServerError(
+                "Could not retrieve Lists from Database".to_string(),
+            ))
+        }
+    }
+}
+
 #[server(GetLists)]
 pub async fn get_lists() -> Result<Vec<List>, ServerFnError> {
     println!("get_lists");
@@ -56,7 +74,7 @@ pub async fn get_lists() -> Result<Vec<List>, ServerFnError> {
             Ok(lists)
         }
         Err(e) => {
-            eprintln!("error grabbing list: {:?}", e);
+            eprintln!("error grabbing lists: {:?}", e);
             Err(ServerFnError::ServerError(
                 "Could not retrieve Lists from Database".to_string(),
             ))

@@ -44,6 +44,16 @@ pub async fn get_shopping_lists() -> Result<Vec<List>, sqlx::Error> {
 }
 
 #[cfg(feature = "ssr")]
+pub async fn get_shopping_list(id: Uuid) -> Result<List, sqlx::Error> {
+    let pool = get_pg_pool().await?;
+    let row: PgRow = sqlx::query("SELECT * FROM shopping_lists WHERE id=$1")
+        .bind(id)
+        .fetch_one(&pool)
+        .await?;
+    List::from_row(&row)
+}
+
+#[cfg(feature = "ssr")]
 pub async fn create_shopping_list(name: &str) -> Result<List, sqlx::Error> {
     let pool = get_pg_pool().await?;
 

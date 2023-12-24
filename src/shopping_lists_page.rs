@@ -28,8 +28,8 @@ pub fn ShoppingListsPage(cx: Scope) -> Element {
                             id: "list-{list.id}",
                             key: "list-{list.id}",
                             to: Route::ItemListingPage {
-                                id: list.id
-                        },
+                                id: list.id,
+                            },
                             list.name.clone()
                         }
                     }
