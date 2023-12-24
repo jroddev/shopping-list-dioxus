@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use crate::{
     common_types::{get_items, insert_new_item, Item},
+    dialog_wrapper::DialogWrapper,
     Route,
 };
 
@@ -60,64 +61,37 @@ pub fn ItemListingPage(cx: Scope, id: Uuid) -> Element {
                     },
                     "+"
                 }
-
-                div {
-                    position: "absolute",
-                    visibility: (|| {
-                        if *add_dialog_open.get() {
-                            "visible"
-                        } else {
-                            "hidden"
-                        }
-                    })(),
-                    pointer_events: (||{
-                        if *add_dialog_open.get() {
-                            "auto"
-                        } else {
-                            "none"
-                        }
-                    })(),
-                    top: 0,
-                    left: 0,
-                    background_color: "rgba(0,0,0,0.5)",
-                    width: "100%",
-                    height: "100%",
-                    onclick: |_|{
-                        add_dialog_open.set(false);
-                    },
-                    "overlay"
-                }
-                dialog {
-                    open: *add_dialog_open.get(),
-                    div {
-                        "Add a new Item."
-                    }
-                    input {
-                        placeholder: "new item",
-                        onchange: |ev| {
-                            new_item_text.set(ev.value.clone());
-                        }
-                    }
-                    button {
-                        onclick: |_| {
-                            to_owned![id];
-                            to_owned![item_state];
-                            to_owned![new_item_text];
-                            to_owned![add_dialog_open];
-                            async move {
-                                // add the item to the db
-                                info!("insert item: {new_item_text}");
-                                match insert_new_item(id, new_item_text.to_string()).await {
-                                    Ok(_) => {
-                                        refresh_items(&id, &item_state).await;
-                                        add_dialog_open.set(false);
-                                    },
-                                    Err(_) => eprintln!("Error inserting. Update the dialog"),
-                                }
-                            }
+                DialogWrapper {
+                    is_open: add_dialog_open,
+                        div {
+                            "Add a new Item."
                         },
-                        "Confirm",
-                    }
+                        input {
+                            placeholder: "new item",
+                            onchange: |ev| {
+                                new_item_text.set(ev.value.clone());
+                            },
+                        }
+                        button {
+                            onclick: |_| {
+                                to_owned![id];
+                                to_owned![item_state];
+                                to_owned![new_item_text];
+                                to_owned![add_dialog_open];
+                                async move {
+                                    // add the item to the db
+                                    info!("insert item: {new_item_text}");
+                                    match insert_new_item(id, new_item_text.to_string()).await {
+                                        Ok(_) => {
+                                            refresh_items(&id, &item_state).await;
+                                            add_dialog_open.set(false);
+                                        },
+                                        Err(_) => eprintln!("Error inserting. Update the dialog"),
+                                    }
+                                }
+                            },
+                            "Confirm",
+                        }
                 }
             }
         }

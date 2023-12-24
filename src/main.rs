@@ -9,6 +9,7 @@ use log::{info, LevelFilter};
 use tokio::net::TcpListener;
 
 mod common_types;
+mod dialog_wrapper;
 mod item_listing_page;
 mod postgres;
 mod shopping_lists_page;
