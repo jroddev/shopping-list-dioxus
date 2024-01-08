@@ -33,12 +33,13 @@ pub fn ShoppingListsPage(cx: Scope) -> Element {
             render! {
                 style { include_str!("../src/style.css") }
                 h2 { "Shopping Lists" }
-                for list in lists {
-                    div {
-                        class: "list-item",
+                div {
+                    class: "list-container",
+                    for list in lists {
                         Link {
                             id: "list-{list.id}",
                             key: "list-{list.id}",
+                            class: "list-item",
                             to: Route::ItemListingPage {
                                 id: list.id,
                             },

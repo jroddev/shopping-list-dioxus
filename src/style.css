@@ -7,9 +7,20 @@ a {
   color: black;
 }
 
+.list-container {
+  display: flex;
+  flex-direction: column;
+}
+
 .list-item {
   text-align: center;
   margin: 8px;
   padding: 16px 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  /* border-radius: 8px; */
+  /* border-left: 8px solid blue; */
+}
+
+.crossed {
+  text-decoration-line: line-through;
 }

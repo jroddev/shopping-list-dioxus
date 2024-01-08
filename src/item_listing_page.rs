@@ -49,6 +49,14 @@ pub fn ItemListingPage(cx: Scope, id: Uuid) -> Element {
         }
     });
 
+    let crossed_class = |crossed: bool| {
+        if crossed {
+            "crossed"
+        } else {
+            ""
+        }
+    };
+
     match item_state.get() {
         Some(items) => {
             render! {
@@ -63,10 +71,15 @@ pub fn ItemListingPage(cx: Scope, id: Uuid) -> Element {
 
                 div {
                     for item in items {
+                        // let crossed_style = "";// if item.crossed { "crossed "} else { "" }
+
                         div {
                             id: "item-{item.id}",
                             key: "item-{item.id}",
-                            class: "list-item",
+                            class: "list-item {crossed_class(item.crossed)}",
+                            onclick: |_|{
+                                // toggle crossed
+                            },
                             item.name.clone()
                         }
                     }
