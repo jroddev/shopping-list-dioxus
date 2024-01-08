@@ -75,10 +75,11 @@ pub async fn create_shopping_list(name: &str) -> Result<List, sqlx::Error> {
 #[cfg(feature = "ssr")]
 pub async fn get_list_items(list_id: Uuid) -> Result<Vec<Item>, sqlx::Error> {
     let pool = get_pg_pool().await?;
-    let rows: Vec<PgRow> = sqlx::query("SELECT * FROM items WHERE parent_id = $1")
-        .bind(list_id)
-        .fetch_all(&pool)
-        .await?;
+    let rows: Vec<PgRow> =
+        sqlx::query("SELECT * FROM items WHERE parent_id = $1 ORDER BY created_at DESC")
+            .bind(list_id)
+            .fetch_all(&pool)
+            .await?;
     rows.iter().map(|r| Item::from_row(r)).collect()
 }
 
@@ -98,4 +99,38 @@ pub async fn create_list_item(name: &str, list_id: Uuid) -> Result<Item, sqlx::E
     .fetch_one(&pool)
     .await?;
     Item::from_row(&row)
+}
+
+#[cfg(feature = "ssr")]
+pub async fn update_item_crossed(item_id: Uuid, crossed: bool) -> Result<(), sqlx::Error> {
+    let pool = get_pg_pool().await?;
+
+    sqlx::query(
+        r#"
+            UPDATE items
+            SET crossed = $1
+            WHERE id = $2
+        "#,
+    )
+    .bind(crossed)
+    .bind(item_id)
+    .execute(&pool)
+    .await?;
+    Ok(())
+}
+
+#[cfg(feature = "ssr")]
+pub async fn clear_all_crossed(parent_id: Uuid) -> Result<(), sqlx::Error> {
+    let pool = get_pg_pool().await?;
+
+    sqlx::query(
+        r#"
+            DELETE FROM items
+            WHERE parent_id = $1 AND crossed = true
+        "#,
+    )
+    .bind(parent_id)
+    .execute(&pool)
+    .await?;
+    Ok(())
 }

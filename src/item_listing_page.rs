@@ -5,7 +5,9 @@ use log::{error, info};
 use uuid::Uuid;
 
 use crate::{
-    common_types::{get_items, get_list, insert_new_item, Item},
+    common_types::{
+        clear_all_crossed, get_items, get_list, insert_new_item, update_item_crossed, Item,
+    },
     dialog_wrapper::DialogWrapper,
     Route,
 };
@@ -77,8 +79,19 @@ pub fn ItemListingPage(cx: Scope, id: Uuid) -> Element {
                             id: "item-{item.id}",
                             key: "item-{item.id}",
                             class: "list-item {crossed_class(item.crossed)}",
-                            onclick: |_|{
-                                // toggle crossed
+                            onclick: |_| {
+                                to_owned![id];
+                                to_owned![item];
+                                to_owned![item_state];
+                                async move {
+                                    // toggle crossed
+                                    match update_item_crossed(item.id, !item.crossed).await {
+                                        Ok(()) => { refresh_items(&id, &item_state).await; }
+                                        Err(e) => {
+                                            error!("Error updating crossed state of item {}: {e}", item.id);
+                                        }
+                                    }
+                                }
                             },
                             item.name.clone()
                         }
@@ -92,35 +105,47 @@ pub fn ItemListingPage(cx: Scope, id: Uuid) -> Element {
                 }
                 DialogWrapper {
                     is_open: add_dialog_open,
-                        div {
-                            "Add a new Item."
+                    div {
+                        "Add a new Item."
+                    },
+                    input {
+                        placeholder: "new item",
+                        onchange: |ev| {
+                            new_item_text.set(ev.value.clone());
                         },
-                        input {
-                            placeholder: "new item",
-                            onchange: |ev| {
-                                new_item_text.set(ev.value.clone());
-                            },
-                        }
-                        button {
-                            onclick: |_| {
-                                to_owned![id];
-                                to_owned![item_state];
-                                to_owned![new_item_text];
-                                to_owned![add_dialog_open];
-                                async move {
-                                    // add the item to the db
-                                    info!("insert item: {new_item_text}");
-                                    match insert_new_item(id, new_item_text.to_string()).await {
-                                        Ok(_) => {
-                                            refresh_items(&id, &item_state).await;
-                                            add_dialog_open.set(false);
-                                        },
-                                        Err(_) => eprintln!("Error inserting Item. Update the dialog"),
-                                    }
+                    }
+                    button {
+                        onclick: |_| {
+                            to_owned![id];
+                            to_owned![item_state];
+                            to_owned![new_item_text];
+                            to_owned![add_dialog_open];
+                            async move {
+                                // add the item to the db
+                                info!("insert item: {new_item_text}");
+                                match insert_new_item(id, new_item_text.to_string()).await {
+                                    Ok(_) => {
+                                        refresh_items(&id, &item_state).await;
+                                        add_dialog_open.set(false);
+                                    },
+                                    Err(_) => eprintln!("Error inserting Item. Update the dialog"),
                                 }
-                            },
-                            "Confirm",
+                            }
+                        },
+                        "Confirm",
+                    }
+                }
+                button {
+                    onclick: |_|{
+                        to_owned![id];
+                        to_owned![item_state];
+                        async move {
+                            let _ = clear_all_crossed(id).await;
+                            refresh_items(&id, &item_state).await;
+
                         }
+                    },
+                    "Delete crossed"
                 }
             }
         }

@@ -21,6 +21,36 @@ pub async fn insert_new_item(id: Uuid, new_item_text: String) -> Result<(), Serv
     }
 }
 
+#[server(UpdateItemCrossed)]
+pub async fn update_item_crossed(id: Uuid, crossed: bool) -> Result<(), ServerFnError> {
+    match postgres::update_item_crossed(id, crossed).await {
+        Ok(row) => {
+            info!("Inserted: {row:?}");
+            Ok(())
+        }
+        Err(e) => {
+            error!("Error updating crossed state for item {id}: {e}");
+            Err(ServerFnError::ServerError("Failed to add item".to_string()))
+        }
+    }
+}
+
+#[server(ClearAllCrossed)]
+pub async fn clear_all_crossed(list_id: Uuid) -> Result<(), ServerFnError> {
+    match postgres::clear_all_crossed(list_id).await {
+        Ok(()) => {
+            info!("Deleted crossed items from list {list_id}");
+            Ok(())
+        }
+        Err(e) => {
+            error!("Error deleting crossed from list {list_id}: {e}");
+            Err(ServerFnError::ServerError(
+                "Failed to clear crossed items".to_string(),
+            ))
+        }
+    }
+}
+
 #[server(InsertNewList)]
 pub async fn insert_new_list(new_list_text: String) -> Result<(), ServerFnError> {
     match postgres::create_shopping_list(&new_list_text).await {
