@@ -52,19 +52,21 @@ pub fn ItemListingPage(cx: Scope, id: Uuid) -> Element {
     match item_state.get() {
         Some(items) => {
             render! {
+                style { include_str!("../src/style.css") }
                 div {
                     Link {
                         to: Route::ShoppingListsPage,
                         "back"
                     }
                 }
-                h3 { "{page_name}" }
+                h2 { "{page_name}" }
 
-                ul {
+                div {
                     for item in items {
-                        li {
+                        div {
                             id: "item-{item.id}",
                             key: "item-{item.id}",
+                            class: "list-item",
                             item.name.clone()
                         }
                     }

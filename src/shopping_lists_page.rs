@@ -31,9 +31,11 @@ pub fn ShoppingListsPage(cx: Scope) -> Element {
     match list_state.get() {
         Some(lists) => {
             render! {
+                style { include_str!("../src/style.css") }
                 h2 { "Shopping Lists" }
                 for list in lists {
                     div {
+                        class: "list-item",
                         Link {
                             id: "list-{list.id}",
                             key: "list-{list.id}",
