@@ -21,6 +21,20 @@ pub async fn insert_new_item(id: Uuid, new_item_text: String) -> Result<(), Serv
     }
 }
 
+#[server(InsertNewList)]
+pub async fn insert_new_list(new_list_text: String) -> Result<(), ServerFnError> {
+    match postgres::create_shopping_list(&new_list_text).await {
+        Ok(row) => {
+            info!("Inserted: {row:?}");
+            Ok(())
+        }
+        Err(e) => {
+            error!("Error inserting list {new_list_text}: {e}");
+            Err(ServerFnError::ServerError("Failed to add list".to_string()))
+        }
+    }
+}
+
 #[server(GetItems)]
 pub async fn get_items(list_id: Uuid) -> Result<Vec<Item>, ServerFnError> {
     println!("get items: {list_id}");

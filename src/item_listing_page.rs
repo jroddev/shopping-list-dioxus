@@ -100,7 +100,7 @@ pub fn ItemListingPage(cx: Scope, id: Uuid) -> Element {
                                             refresh_items(&id, &item_state).await;
                                             add_dialog_open.set(false);
                                         },
-                                        Err(_) => eprintln!("Error inserting. Update the dialog"),
+                                        Err(_) => eprintln!("Error inserting Item. Update the dialog"),
                                     }
                                 }
                             },
