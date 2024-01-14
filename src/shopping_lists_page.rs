@@ -1,7 +1,4 @@
-use dioxus::{
-    html::{button, input_data::keyboard_types::Key},
-    prelude::*,
-};
+use dioxus::{html::input_data::keyboard_types::Key, prelude::*};
 use dioxus_router::prelude::Link;
 
 use crate::{common_types::*, dialog_wrapper::DialogWrapper, Route};
@@ -18,7 +15,7 @@ async fn refresh_lists(list_state: &UseState<Option<Vec<List>>>) {
 }
 
 #[inline_props]
-pub fn EditDialog(cx: Scope, list: List) -> Element {
+pub fn EditDialog(cx: Scope, list: List, list_state: UseState<Option<Vec<List>>>) -> Element {
     let edit_dialog_open = use_state(cx, || false);
     let delete_confirmation_open = use_state(cx, || false);
     let name_text = use_state(cx, || list.name.clone());
@@ -56,7 +53,34 @@ pub fn EditDialog(cx: Scope, list: List) -> Element {
             DialogWrapper {
                 is_open: delete_confirmation_open,
                 div { "Are you sure you want to delete '{list.name}'?" },
-                button { "Yes" }
+                button {
+                    onclick: |_| {
+                        let list_id = list.id.clone();
+                        delete_confirmation_open.set(false);
+                        to_owned![edit_dialog_open, list_state, list];
+
+                        async move {
+                            match delete_shopping_list(list_id).await {
+                                Ok(_) => {
+                                    edit_dialog_open.set(false);
+                                    list_state.modify(|state|{
+                                            match state.clone() {
+                                                Some(state) =>  {
+                                                    Some(state.iter()
+                                                        .filter(|x| x.id != list.id)
+                                                        .map(|x| x.to_owned())
+                                                        .collect())
+                                                },
+                                                None => None,
+                                            }
+                                    });
+                                },
+                                Err(_) => todo!(),
+                            }
+                        }
+                    },
+                    "Yes",
+                }
                 button {
                     onclick: |_| { delete_confirmation_open.set(false); },
                     "No"
@@ -70,7 +94,7 @@ pub fn EditDialog(cx: Scope, list: List) -> Element {
 pub fn ShoppingListsPage(cx: Scope) -> Element {
     let default_list: Option<Vec<List>> = None;
     let list_state = use_state(cx, || default_list);
-    let add_dialog_open = use_state(cx, || false);
+    // let add_dialog_open = use_state(cx, || false);
     let new_list_text = use_state(cx, || "".to_string());
 
     use_effect(&cx, (), |()| {
@@ -88,8 +112,6 @@ pub fn ShoppingListsPage(cx: Scope) -> Element {
                 div {
                     class: "list-container",
                     input {
-                        // id: "new-list-item-field",
-                        // key: "new-list-item-field",
                         class: "list-item",
                         placeholder: "new shopping list",
                         value: "{new_list_text}",
@@ -128,7 +150,8 @@ pub fn ShoppingListsPage(cx: Scope) -> Element {
                                 list.name.clone()
                             }
                             EditDialog {
-                                list: list.clone()
+                                list: list.clone(),
+                                list_state: list_state.clone()
                             }
                         }
                     }

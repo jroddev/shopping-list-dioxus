@@ -1,6 +1,4 @@
 use crate::common_types::*;
-use dioxus::prelude::*;
-use dioxus_fullstack::prelude::*;
 use log::info;
 use uuid::Uuid;
 
@@ -68,6 +66,22 @@ pub async fn create_shopping_list(name: &str) -> Result<List, sqlx::Error> {
     .fetch_one(&pool)
     .await?;
     List::from_row(&row)
+}
+
+#[cfg(feature = "ssr")]
+pub async fn delete_shopping_list(id: Uuid) -> Result<(), sqlx::Error> {
+    let pool = get_pg_pool().await?;
+
+    sqlx::query(
+        r#"
+            DELETE FROM shopping_lists
+            WHERE id = $1
+        "#,
+    )
+    .bind(id)
+    .execute(&pool)
+    .await?;
+    Ok(())
 }
 
 ////////////////////

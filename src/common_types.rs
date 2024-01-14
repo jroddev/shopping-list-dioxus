@@ -71,6 +71,22 @@ pub async fn insert_new_list(new_list_text: String) -> Result<(), ServerFnError>
     }
 }
 
+#[server(DeleteShoppingList)]
+pub async fn delete_shopping_list(id: Uuid) -> Result<(), ServerFnError> {
+    match postgres::delete_shopping_list(id).await {
+        Ok(()) => {
+            info!("Deleted Shopping List with ID: {id}");
+            Ok(())
+        }
+        Err(e) => {
+            error!("Error deleting list {id}: {e}");
+            Err(ServerFnError::ServerError(
+                "Failed to delete list".to_string(),
+            ))
+        }
+    }
+}
+
 #[server(GetItems)]
 pub async fn get_items(list_id: Uuid) -> Result<Vec<Item>, ServerFnError> {
     println!("get items: {list_id}");
