@@ -16,9 +16,9 @@ pub fn DialogWrapper<'a>(cx: Scope<'a, DialogWrapperProps<'a>>) -> Element {
             position: "absolute",
             top: 0,
             left: 0,
-            background_color: "rgba(0,0,0,0.5)",
+    background_color: "rgba(0,0,0,0.5)",
             width: "100%",
-            height: "100%",
+    height: "100%",
             onclick: |_|{
                 cx.props.is_open.set(false);
             },

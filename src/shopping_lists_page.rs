@@ -1,8 +1,11 @@
-use dioxus::prelude::*;
+use dioxus::{
+    html::{button, input_data::keyboard_types::Key},
+    prelude::*,
+};
 use dioxus_router::prelude::Link;
 
 use crate::{common_types::*, dialog_wrapper::DialogWrapper, Route};
-use log::{error, info};
+use log::info;
 
 async fn refresh_lists(list_state: &UseState<Option<Vec<List>>>) {
     match get_lists().await {
@@ -12,6 +15,55 @@ async fn refresh_lists(list_state: &UseState<Option<Vec<List>>>) {
             list_state.set(None);
         }
     };
+}
+
+#[inline_props]
+pub fn EditDialog(cx: Scope, list: List) -> Element {
+    let edit_dialog_open = use_state(cx, || false);
+    let delete_confirmation_open = use_state(cx, || false);
+    let name_text = use_state(cx, || list.name.clone());
+
+    // Make sure that the delete confirmation dialog closes when the parent does
+    use_effect(&cx, &(edit_dialog_open.clone(),), |_edit_dialog_open| {
+        to_owned![delete_confirmation_open];
+        async move {
+            delete_confirmation_open.set(false);
+        }
+    });
+
+    render! {
+        button {
+            onclick: |_| {
+                edit_dialog_open.set(true);
+            },
+            "E"
+        }
+        DialogWrapper {
+            is_open: edit_dialog_open,
+            div {
+                "Edit Shopping List Name",
+            }
+            input {
+                value: "{name_text}",
+                onchange: |ev| {
+                    name_text.set(ev.value.clone());
+                },
+            }
+            button {
+                onclick: |_| { delete_confirmation_open.set(true); },
+                "Delete List",
+            }
+            DialogWrapper {
+                is_open: delete_confirmation_open,
+                div { "Are you sure you want to delete '{list.name}'?" },
+                button { "Yes" }
+                button {
+                    onclick: |_| { delete_confirmation_open.set(false); },
+                    "No"
+                }
+            }
+        }
+    }
 }
 
 #[inline_props]
@@ -35,55 +87,89 @@ pub fn ShoppingListsPage(cx: Scope) -> Element {
                 h2 { "Shopping Lists" }
                 div {
                     class: "list-container",
+                    input {
+                        // id: "new-list-item-field",
+                        // key: "new-list-item-field",
+                        class: "list-item",
+                        placeholder: "new shopping list",
+                        value: "{new_list_text}",
+                        oninput: |ev| {
+                            new_list_text.set(ev.value.clone());
+                        },
+                        onkeypress: |ev| {
+                            to_owned![new_list_text, list_state];
+                            async move {
+                                // Enter not working on mobile browser with virtual keyboard.
+                                // Diff key?
+                                // info!("Key Press: {}", ev.key());
+                                if ev.key() == Key::Enter {
+                                    let new_list_name = new_list_text.current();
+                                    info!("insert list: {new_list_name}");
+                                    match insert_new_list(new_list_name.to_string()).await {
+                                        Ok(_) => {
+                                            refresh_lists(&list_state).await;
+                                            new_list_text.set("".to_string());
+                                        },
+                                        Err(_) => eprintln!("Error inserting List. Update the dialog"),
+                                    }
+                                }
+                            }
+                        }
+                    }
                     for list in lists {
-                        Link {
+                        div {
                             id: "list-{list.id}",
                             key: "list-{list.id}",
                             class: "list-item",
-                            to: Route::ItemListingPage {
-                                id: list.id,
-                            },
-                            list.name.clone()
+                            Link {
+                                to: Route::ItemListingPage {
+                                    id: list.id,
+                                },
+                                list.name.clone()
+                            }
+                            EditDialog {
+                                list: list.clone()
+                            }
                         }
                     }
                 }
-                button {
-                    onclick: |_|{
-                        add_dialog_open.set(true);
-                    },
-                    "+"
-                }
-                DialogWrapper {
-                    is_open: add_dialog_open,
-                    div {
-                        "Add a new List."
-                    },
-                    input {
-                        placeholder: "new item",
-                        onchange: |ev| {
-                            new_list_text.set(ev.value.clone());
-                        },
-                    }
-                    button {
-                        onclick: |_| {
-                            to_owned![list_state];
-                            to_owned![new_list_text];
-                            to_owned![add_dialog_open];
-                            async move {
-                                // add the list to the db
-                                info!("insert list: {new_list_text}");
-                                match insert_new_list(new_list_text.to_string()).await {
-                                    Ok(_) => {
-                                        refresh_lists(&list_state).await;
-                                        add_dialog_open.set(false);
-                                    },
-                                    Err(_) => eprintln!("Error inserting List. Update the dialog"),
-                                }
-                            }
-                        },
-                        "Confirm",
-                    }
-                }
+                // button {
+                //     onclick: |_|{
+                //         add_dialog_open.set(true);
+                //     },
+                //     "+"
+                // }
+                // DialogWrapper {
+                //     is_open: add_dialog_open,
+                //     div {
+                //         "Add a new List."
+                //     },
+                //     input {
+                //         placeholder: "new item",
+                //         onchange: |ev| {
+                //             new_list_text.set(ev.value.clone());
+                //         },
+                //     }
+                //     button {
+                //         onclick: |_| {
+                //             to_owned![list_state];
+                //             to_owned![new_list_text];
+                //             to_owned![add_dialog_open];
+                //             async move {
+                //                 // add the list to the db
+                //                 info!("insert list: {new_list_text}");
+                //                 match insert_new_list(new_list_text.to_string()).await {
+                //                     Ok(_) => {
+                //                         refresh_lists(&list_state).await;
+                //                         add_dialog_open.set(false);
+                //                     },
+                //                     Err(_) => eprintln!("Error inserting List. Update the dialog"),
+                //                 }
+                //             }
+                //         },
+                //         "Confirm",
+                //     }
+                // }
             }
         }
         None => {

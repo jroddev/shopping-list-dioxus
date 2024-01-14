@@ -7,6 +7,12 @@ use uuid::Uuid;
 
 use crate::postgres::{self};
 
+#[server(ServerLog)]
+pub async fn server_log(text: String) -> Result<(), ServerFnError> {
+    info!("server_log: {text}");
+    Ok(())
+}
+
 #[server(InsertNewItem)]
 pub async fn insert_new_item(id: Uuid, new_item_text: String) -> Result<(), ServerFnError> {
     match postgres::create_list_item(&new_item_text, id).await {
@@ -163,7 +169,7 @@ pub struct Item {
 //     }
 // }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "ssr", derive(sqlx::FromRow))]
 pub struct List {
     pub id: Uuid,
