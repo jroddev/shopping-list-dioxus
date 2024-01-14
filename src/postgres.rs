@@ -35,7 +35,7 @@ pub async fn run_db_migrations() -> Result<(), MigrateError> {
 #[cfg(feature = "ssr")]
 pub async fn get_shopping_lists() -> Result<Vec<List>, sqlx::Error> {
     let pool = get_pg_pool().await?;
-    let rows: Vec<PgRow> = sqlx::query("SELECT * FROM shopping_lists")
+    let rows: Vec<PgRow> = sqlx::query("SELECT * FROM shopping_lists ORDER BY updated_at DESC")
         .fetch_all(&pool)
         .await?;
     rows.iter().map(|r| List::from_row(r)).collect()
@@ -79,6 +79,24 @@ pub async fn delete_shopping_list(id: Uuid) -> Result<(), sqlx::Error> {
         "#,
     )
     .bind(id)
+    .execute(&pool)
+    .await?;
+    Ok(())
+}
+
+#[cfg(feature = "ssr")]
+pub async fn update_shopping_list_name(list_id: Uuid, new_name: String) -> Result<(), sqlx::Error> {
+    let pool = get_pg_pool().await?;
+
+    sqlx::query(
+        r#"
+            UPDATE shopping_lists
+            SET name = $1
+            WHERE id = $2
+        "#,
+    )
+    .bind(new_name)
+    .bind(list_id)
     .execute(&pool)
     .await?;
     Ok(())

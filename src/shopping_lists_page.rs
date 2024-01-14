@@ -46,9 +46,27 @@ pub fn EditDialog(cx: Scope, list: List, list_state: UseState<Option<Vec<List>>>
                     name_text.set(ev.value.clone());
                 },
             }
-            button {
-                onclick: |_| { delete_confirmation_open.set(true); },
-                "Delete List",
+            div {
+                button {
+                    onclick: |_| {
+                        let list_id = list.id.clone();
+                        to_owned![name_text, edit_dialog_open, list_state];
+                        async move {
+                            match update_shopping_list_name(list_id, name_text.current().to_string()).await {
+                                Ok(_) => {
+                                    edit_dialog_open.set(false);
+                                    refresh_lists(&list_state).await;
+                                },
+                                Err(_) => todo!(),
+                            }
+                        }
+                    },
+                    "Update List Name",
+                }
+                button {
+                    onclick: |_| { delete_confirmation_open.set(true); },
+                    "Delete List",
+                }
             }
             DialogWrapper {
                 is_open: delete_confirmation_open,
@@ -57,23 +75,13 @@ pub fn EditDialog(cx: Scope, list: List, list_state: UseState<Option<Vec<List>>>
                     onclick: |_| {
                         let list_id = list.id.clone();
                         delete_confirmation_open.set(false);
-                        to_owned![edit_dialog_open, list_state, list];
+                        to_owned![edit_dialog_open, list_state];
 
                         async move {
                             match delete_shopping_list(list_id).await {
                                 Ok(_) => {
                                     edit_dialog_open.set(false);
-                                    list_state.modify(|state|{
-                                            match state.clone() {
-                                                Some(state) =>  {
-                                                    Some(state.iter()
-                                                        .filter(|x| x.id != list.id)
-                                                        .map(|x| x.to_owned())
-                                                        .collect())
-                                                },
-                                                None => None,
-                                            }
-                                    });
+                                    refresh_lists(&list_state).await;
                                 },
                                 Err(_) => todo!(),
                             }
