@@ -2,6 +2,8 @@ use dioxus::{html::input_data::keyboard_types::Key, prelude::*};
 use dioxus_router::prelude::Link;
 
 use crate::{common_types::*, dialog_wrapper::DialogWrapper, Route};
+use dioxus_free_icons::icons::bs_icons::*;
+use dioxus_free_icons::Icon;
 use log::info;
 
 async fn refresh_lists(list_state: &UseState<Option<Vec<List>>>) {
@@ -30,10 +32,16 @@ pub fn EditDialog(cx: Scope, list: List, list_state: UseState<Option<Vec<List>>>
 
     render! {
         button {
+            class: "invisible-button",
             onclick: |_| {
                 edit_dialog_open.set(true);
             },
-            "E"
+            Icon {
+                width: 30,
+                height: 30,
+                fill: "black",
+                icon: BsPencil,
+            }
         }
         DialogWrapper {
             is_open: edit_dialog_open,

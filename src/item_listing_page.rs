@@ -1,5 +1,7 @@
 use dioxus::html::input_data::keyboard_types::Key;
 use dioxus::prelude::*;
+use dioxus_free_icons::icons::bs_icons::*;
+use dioxus_free_icons::Icon;
 use dioxus_router::prelude::Link;
 use log::{error, info};
 use uuid::Uuid;
@@ -64,12 +66,18 @@ pub fn ItemListingPage(cx: Scope, id: Uuid) -> Element {
             render! {
                 style { include_str!("../src/style.css") }
                 div {
+                    class: "item-page-header",
                     Link {
                         to: Route::ShoppingListsPage,
-                        "back"
+                        Icon {
+                            width: 30,
+                            height: 30,
+                            fill: "black",
+                            icon: BsHouse,
+                        }
                     }
+                    h2 { "{page_name}" }
                 }
-                h2 { "{page_name}" }
 
                 div {
                     class: "list-container",
@@ -124,18 +132,25 @@ pub fn ItemListingPage(cx: Scope, id: Uuid) -> Element {
                             item.name.clone()
                         }
                     }
-                }
-                button {
-                    onclick: |_|{
-                        to_owned![id];
-                        to_owned![item_state];
-                        async move {
-                            let _ = clear_all_crossed(id).await;
-                            refresh_items(&id, &item_state).await;
+                    button {
+                        class: "list-item",
+                        onclick: |_|{
+                            to_owned![id];
+                            to_owned![item_state];
+                            async move {
+                                let _ = clear_all_crossed(id).await;
+                                refresh_items(&id, &item_state).await;
 
+                            }
+                        },
+                        "Delete crossed",
+                        Icon {
+                            width: 30,
+                            height: 30,
+                            fill: "black",
+                            icon: BsTrash3Fill,
                         }
-                    },
-                    "Delete crossed"
+                    }
                 }
             }
         }

@@ -21,13 +21,38 @@ a {
   /* border-left: 8px solid blue; */
   display: flex;
   justify-content: space-between;
-  align-content: center;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.list-item:active {
+  border: 2px solid grey;
+  border-radius: 16px;
+}
+
+.item-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item-page-header h2 {
+  width: 100%;
 }
 
 .list-item a {
   width: 100%;
 }
 
+.list-item button {
+  padding: 0 10px;
+}
+
 .crossed {
   text-decoration-line: line-through;
+}
+
+.invisible-button {
+  background: none;
+  border: none;
 }
