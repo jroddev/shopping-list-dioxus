@@ -1,5 +1,6 @@
 ```
 # build client
+cargo install dioxus-cli
 dx build --features web --release
 
 #build and run server
