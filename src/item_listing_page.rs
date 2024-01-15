@@ -1,5 +1,5 @@
+use dioxus::html::input_data::keyboard_types::Key;
 use dioxus::prelude::*;
-use dioxus_fullstack::prelude::*;
 use dioxus_router::prelude::Link;
 use log::{error, info};
 use uuid::Uuid;
@@ -72,6 +72,34 @@ pub fn ItemListingPage(cx: Scope, id: Uuid) -> Element {
                 h2 { "{page_name}" }
 
                 div {
+                    class: "list-container",
+                    input {
+                        class: "list-item",
+                        placeholder: "new item",
+                        value: "{new_item_text}",
+                        oninput: |ev| {
+                            new_item_text.set(ev.value.clone());
+                        },
+                        onkeypress: |ev| {
+                            to_owned![id];
+                            to_owned![item_state];
+                            to_owned![new_item_text];
+                            async move {
+                                // Enter not working on mobile browser with virtual keyboard.
+                                // It looks like this may be fixed in dioxus 0.5
+                                if ev.key() == Key::Enter {
+                                    info!("insert item: {new_item_text}");
+                                    match insert_new_item(id, new_item_text.current().to_string()).await {
+                                        Ok(_) => {
+                                            refresh_items(&id, &item_state).await;
+                                            new_item_text.set("".to_string());
+                                        },
+                                        Err(_) => eprintln!("Error inserting Item. Update the dialog"),
+                                    }
+                                }
+                            }
+                        }
+                    }
                     for item in items {
                         // let crossed_style = "";// if item.crossed { "crossed "} else { "" }
 
@@ -95,44 +123,6 @@ pub fn ItemListingPage(cx: Scope, id: Uuid) -> Element {
                             },
                             item.name.clone()
                         }
-                    }
-                }
-                button {
-                    onclick: |_|{
-                        add_dialog_open.set(true);
-                    },
-                    "+"
-                }
-                DialogWrapper {
-                    is_open: add_dialog_open,
-                    div {
-                        "Add a new Item."
-                    },
-                    input {
-                        placeholder: "new item",
-                        onchange: |ev| {
-                            new_item_text.set(ev.value.clone());
-                        },
-                    }
-                    button {
-                        onclick: |_| {
-                            to_owned![id];
-                            to_owned![item_state];
-                            to_owned![new_item_text];
-                            to_owned![add_dialog_open];
-                            async move {
-                                // add the item to the db
-                                info!("insert item: {new_item_text}");
-                                match insert_new_item(id, new_item_text.to_string()).await {
-                                    Ok(_) => {
-                                        refresh_items(&id, &item_state).await;
-                                        add_dialog_open.set(false);
-                                    },
-                                    Err(_) => eprintln!("Error inserting Item. Update the dialog"),
-                                }
-                            }
-                        },
-                        "Confirm",
                     }
                 }
                 button {

@@ -130,8 +130,7 @@ pub fn ShoppingListsPage(cx: Scope) -> Element {
                             to_owned![new_list_text, list_state];
                             async move {
                                 // Enter not working on mobile browser with virtual keyboard.
-                                // Diff key?
-                                // info!("Key Press: {}", ev.key());
+                                // It looks like this may be fixed in dioxus 0.5
                                 if ev.key() == Key::Enter {
                                     let new_list_name = new_list_text.current();
                                     info!("insert list: {new_list_name}");
@@ -164,43 +163,6 @@ pub fn ShoppingListsPage(cx: Scope) -> Element {
                         }
                     }
                 }
-                // button {
-                //     onclick: |_|{
-                //         add_dialog_open.set(true);
-                //     },
-                //     "+"
-                // }
-                // DialogWrapper {
-                //     is_open: add_dialog_open,
-                //     div {
-                //         "Add a new List."
-                //     },
-                //     input {
-                //         placeholder: "new item",
-                //         onchange: |ev| {
-                //             new_list_text.set(ev.value.clone());
-                //         },
-                //     }
-                //     button {
-                //         onclick: |_| {
-                //             to_owned![list_state];
-                //             to_owned![new_list_text];
-                //             to_owned![add_dialog_open];
-                //             async move {
-                //                 // add the list to the db
-                //                 info!("insert list: {new_list_text}");
-                //                 match insert_new_list(new_list_text.to_string()).await {
-                //                     Ok(_) => {
-                //                         refresh_lists(&list_state).await;
-                //                         add_dialog_open.set(false);
-                //                     },
-                //                     Err(_) => eprintln!("Error inserting List. Update the dialog"),
-                //                 }
-                //             }
-                //         },
-                //         "Confirm",
-                //     }
-                // }
             }
         }
         None => {
