@@ -1,5 +1,6 @@
 use crate::common_types::*;
 use log::info;
+use std::env;
 use uuid::Uuid;
 
 #[cfg(feature = "ssr")]
@@ -13,11 +14,11 @@ use sqlx::{
 pub async fn get_pg_pool() -> Result<Pool<Postgres>, sqlx::Error> {
     // Don't create a pool for every request.
     // Figure out how to do it once and pass it around as state
-    let username = "postgres";
-    let password = "password";
-    let hostname = "localhost";
-    let port = 5432;
-    let dbname = "postgres";
+    let username = env::var("POSTGRES_USER").unwrap_or("postgres".to_string());
+    let password = env::var("POSTGRES_PASSWORD").unwrap_or("password".to_string());
+    let hostname = env::var("POSTGRES_HOST").unwrap_or("localhost".to_string());
+    let port = env::var("POSTGRES_PORT").unwrap_or(5432.to_string());
+    let dbname = env::var("POSTGRES_DB").unwrap_or("postgres".to_string());
     let connect_string = format!("postgres://{username}:{password}@{hostname}:{port}/{dbname}");
     info!("connecting to {connect_string}");
     PgPoolOptions::new()
