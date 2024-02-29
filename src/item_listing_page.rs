@@ -108,6 +108,28 @@ pub fn ItemListingPage(cx: Scope, id: Uuid) -> Element {
                             }
                         }
                     }
+                    // Enter not working on mobile browser with virtual keyboard.
+                    // It looks like this may be fixed in dioxus 0.5
+                    // for now just have an extra button
+                    button {
+                        onclick: |_| {
+
+                            to_owned![id];
+                            to_owned![item_state];
+                            to_owned![new_item_text];
+                            async move {
+                                info!("insert item: {new_item_text}");
+                                match insert_new_item(id, new_item_text.current().to_string()).await {
+                                    Ok(_) => {
+                                        refresh_items(&id, &item_state).await;
+                                        new_item_text.set("".to_string());
+                                    },
+                                    Err(_) => eprintln!("Error inserting Item. Update the dialog"),
+                                }
+                            }
+                        },
+                        "+"
+                    }
                     for item in items {
                         // let crossed_style = "";// if item.crossed { "crossed "} else { "" }
 

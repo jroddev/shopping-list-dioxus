@@ -153,6 +153,26 @@ pub fn ShoppingListsPage(cx: Scope) -> Element {
                             }
                         }
                     }
+                    // Enter not working on mobile browser with virtual keyboard.
+                    // It looks like this may be fixed in dioxus 0.5
+                    // for now just have an extra button
+                    button {
+                        onclick: |_| {
+                            to_owned![new_list_text, list_state];
+                            async move {
+                                let new_list_name = new_list_text.current();
+                                info!("insert list: {new_list_name}");
+                                match insert_new_list(new_list_name.to_string()).await {
+                                    Ok(_) => {
+                                        refresh_lists(&list_state).await;
+                                        new_list_text.set("".to_string());
+                                    },
+                                    Err(_) => eprintln!("Error inserting List. Update the dialog"),
+                                }
+                            }
+                        },
+                        "+"
+                    }
                     for list in lists {
                         div {
                             id: "list-{list.id}",
