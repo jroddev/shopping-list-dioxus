@@ -1,0 +1,9 @@
+{
+  "name": "Shopping List",
+  "short_name": "Shopping",
+  "description": "A simple shopping list application",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#aaa",
+  "theme_color": "#888"
+}
