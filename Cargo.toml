@@ -2,26 +2,23 @@
 name = "shopping-list-dioxus"
 version = "0.1.0"
 edition = "2021"
+authors = ["jroddev <jroddev@gmail.com>"]
 publish = false
 
 
 [dependencies]
-dioxus-web = { version = "0.4.0", features = ["hydrate"], optional = true }
-dioxus = { version = "0.4.0" }
-dioxus-router = { version = "0.4.0" }
-dioxus-fullstack = { version = "0.4.0", features = ["router"] }
-axum = { version = "0.6.12", optional = true }
+dioxus = { version = "0.5", features = ["fullstack", "router"] }
+dioxus-logger = "0.5.0"
+tracing = "0.1.40"
 tokio = { version = "1.34.0", features = ["full"], optional = true }
-serde = { version = "1.0.193", features = ["derive"] }
+serde = { version = "1.0.199", features = ["derive"] }
 uuid = { version = "1.6.1", features = ["v4", "serde", "js"] }
 chrono = { version = "0.4.31", features = ["serde"] }
 sqlx = { version = "0.7.2", features = ["runtime-tokio", "postgres", "migrate", "uuid", "chrono"], optional = true }
-dioxus-logger = "0.4.1"
-log = "0.4.20"
-dioxus-free-icons = { version = "0.7.0", features = ["bootstrap"] }
+dioxus-free-icons = { version = "0.8.5", features = ["bootstrap"] }
 
 [features]
 default = []
-ssr = ["axum", "dioxus-fullstack/axum", "sqlx", "tokio"]
-web = ["dioxus-fullstack/web", "dioxus-router/web"]
+server = ["dioxus/axum", "sqlx", "tokio"]
+web = ["dioxus/web"]
 
