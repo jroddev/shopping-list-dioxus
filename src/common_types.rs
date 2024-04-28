@@ -1,8 +1,7 @@
 use chrono::{DateTime, Utc};
 use dioxus::prelude::*;
-use dioxus_fullstack::prelude::*;
-use log::{error, info};
 use serde::{Deserialize, Serialize};
+use tracing::{error, info};
 use uuid::Uuid;
 
 use crate::postgres::{self};
@@ -181,7 +180,7 @@ pub async fn get_lists() -> Result<Vec<List>, ServerFnError> {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[cfg_attr(feature = "ssr", derive(sqlx::FromRow))]
+#[cfg_attr(feature = "server", derive(sqlx::FromRow))]
 pub struct Item {
     pub id: Uuid,
     pub name: String,
@@ -202,7 +201,7 @@ pub struct Item {
 // }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "ssr", derive(sqlx::FromRow))]
+#[cfg_attr(feature = "server", derive(sqlx::FromRow))]
 pub struct List {
     pub id: Uuid,
     pub name: String,

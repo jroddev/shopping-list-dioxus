@@ -1,34 +1,28 @@
 use dioxus::prelude::*;
 
-#[derive(Props)]
-pub struct DialogWrapperProps<'a> {
-    is_open: &'a UseState<bool>,
-    children: Element<'a>,
-}
-
-pub fn DialogWrapper<'a>(cx: Scope<'a, DialogWrapperProps<'a>>) -> Element {
-    if !*cx.props.is_open.get() {
+#[component()]
+pub fn DialogWrapper(is_open: SyncSignal<bool>, children: Element) -> Element {
+    if !is_open() {
         return None;
     }
 
-    render! {
+    rsx! {
         div {
             position: "absolute",
             top: 0,
             left: 0,
-    background_color: "rgba(0,0,0,0.5)",
+            background_color: "rgba(0,0,0,0.5)",
             width: "100%",
-    height: "100%",
-            onclick: |_|{
-                cx.props.is_open.set(false);
+            height: "100%",
+            onclick: move |_|{
+                is_open.set(false);
             },
-
             dialog {
                 open: true,
-                onclick: |e| {
+                onclick: move |e| {
                     e.stop_propagation();
                 },
-                &cx.props.children
+                {&children}
             }
         }
     }

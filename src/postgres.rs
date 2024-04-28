@@ -1,16 +1,16 @@
 use crate::common_types::*;
-use log::info;
 use std::env;
+use tracing::info;
 use uuid::Uuid;
 
-#[cfg(feature = "ssr")]
+#[cfg(feature = "server")]
 use sqlx::{
     migrate::MigrateError,
     postgres::{PgPoolOptions, PgRow, Postgres},
     FromRow, Pool, Row,
 };
 
-#[cfg(feature = "ssr")]
+#[cfg(feature = "server")]
 pub async fn get_pg_pool() -> Result<Pool<Postgres>, sqlx::Error> {
     // Don't create a pool for every request.
     // Figure out how to do it once and pass it around as state
@@ -27,13 +27,13 @@ pub async fn get_pg_pool() -> Result<Pool<Postgres>, sqlx::Error> {
         .await
 }
 
-#[cfg(feature = "ssr")]
+#[cfg(feature = "server")]
 pub async fn run_db_migrations() -> Result<(), MigrateError> {
     let pool = get_pg_pool().await?;
     sqlx::migrate!("./migrations").run(&pool).await
 }
 
-#[cfg(feature = "ssr")]
+#[cfg(feature = "server")]
 pub async fn get_shopping_lists() -> Result<Vec<List>, sqlx::Error> {
     let pool = get_pg_pool().await?;
     let rows: Vec<PgRow> = sqlx::query("SELECT * FROM shopping_lists ORDER BY updated_at DESC")
@@ -42,7 +42,7 @@ pub async fn get_shopping_lists() -> Result<Vec<List>, sqlx::Error> {
     rows.iter().map(|r| List::from_row(r)).collect()
 }
 
-#[cfg(feature = "ssr")]
+#[cfg(feature = "server")]
 pub async fn get_shopping_list(id: Uuid) -> Result<List, sqlx::Error> {
     let pool = get_pg_pool().await?;
     let row: PgRow = sqlx::query("SELECT * FROM shopping_lists WHERE id=$1")
@@ -52,7 +52,7 @@ pub async fn get_shopping_list(id: Uuid) -> Result<List, sqlx::Error> {
     List::from_row(&row)
 }
 
-#[cfg(feature = "ssr")]
+#[cfg(feature = "server")]
 pub async fn create_shopping_list(name: &str) -> Result<List, sqlx::Error> {
     let pool = get_pg_pool().await?;
 
@@ -69,7 +69,7 @@ pub async fn create_shopping_list(name: &str) -> Result<List, sqlx::Error> {
     List::from_row(&row)
 }
 
-#[cfg(feature = "ssr")]
+#[cfg(feature = "server")]
 pub async fn delete_shopping_list(id: Uuid) -> Result<(), sqlx::Error> {
     let pool = get_pg_pool().await?;
 
@@ -85,7 +85,7 @@ pub async fn delete_shopping_list(id: Uuid) -> Result<(), sqlx::Error> {
     Ok(())
 }
 
-#[cfg(feature = "ssr")]
+#[cfg(feature = "server")]
 pub async fn update_shopping_list_name(list_id: Uuid, new_name: String) -> Result<(), sqlx::Error> {
     let pool = get_pg_pool().await?;
 
@@ -105,7 +105,7 @@ pub async fn update_shopping_list_name(list_id: Uuid, new_name: String) -> Resul
 
 ////////////////////
 
-#[cfg(feature = "ssr")]
+#[cfg(feature = "server")]
 pub async fn get_list_items(list_id: Uuid) -> Result<Vec<Item>, sqlx::Error> {
     let pool = get_pg_pool().await?;
     let rows: Vec<PgRow> =
@@ -116,7 +116,7 @@ pub async fn get_list_items(list_id: Uuid) -> Result<Vec<Item>, sqlx::Error> {
     rows.iter().map(|r| Item::from_row(r)).collect()
 }
 
-#[cfg(feature = "ssr")]
+#[cfg(feature = "server")]
 pub async fn create_list_item(name: &str, list_id: Uuid) -> Result<Item, sqlx::Error> {
     let pool = get_pg_pool().await?;
 
@@ -134,7 +134,7 @@ pub async fn create_list_item(name: &str, list_id: Uuid) -> Result<Item, sqlx::E
     Item::from_row(&row)
 }
 
-#[cfg(feature = "ssr")]
+#[cfg(feature = "server")]
 pub async fn update_item_crossed(item_id: Uuid, crossed: bool) -> Result<(), sqlx::Error> {
     let pool = get_pg_pool().await?;
 
@@ -152,7 +152,7 @@ pub async fn update_item_crossed(item_id: Uuid, crossed: bool) -> Result<(), sql
     Ok(())
 }
 
-#[cfg(feature = "ssr")]
+#[cfg(feature = "server")]
 pub async fn clear_all_crossed(parent_id: Uuid) -> Result<(), sqlx::Error> {
     let pool = get_pg_pool().await?;
 
