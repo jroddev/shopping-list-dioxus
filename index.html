@@ -1,26 +1,26 @@
 <!doctype html>
 <html>
-<head>
-  <title>dioxus | ⛺</title>
-  <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta charset="UTF-8" />
-  <link rel="manifest" href="/manifest.json">
-</head>
-<body>
-  <div id="main"></div>
-  <script type="module">
-    // Register service worker for PWA functionality
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js");
-    }
+    <head>
+        <title>Shopping List 🛒</title>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta charset="UTF-8" />
+        <link rel="manifest" href="/manifest.json" />
+    </head>
+    <body>
+        <div id="main"></div>
+        <script type="module">
+            // Register service worker for PWA functionality
+            if ("serviceWorker" in navigator) {
+                navigator.serviceWorker.register("/sw.js");
+            }
 
-    import init from "/./assets/dioxus/name.js";
-    init("/./assets/dioxus/name_bg.wasm").then(wasm => {
-      if (wasm.__wbindgen_start == undefined) {
-        wasm.main();
-      }
-    });
-  </script>
-</body>
+            import init from "/./assets/dioxus/name.js";
+            init("/./assets/dioxus/name_bg.wasm").then((wasm) => {
+                if (wasm.__wbindgen_start == undefined) {
+                    wasm.main();
+                }
+            });
+        </script>
+    </body>
 </html>
