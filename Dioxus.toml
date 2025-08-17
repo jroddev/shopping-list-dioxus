@@ -1,0 +1,67 @@
+[application]
+
+[web.app]
+
+# HTML title tag content
+title = "Shopping List"
+
+# HTML description tag content
+description = "A simple shopping list PWA built with Dioxus"
+
+[web.watcher]
+
+# Additional watch paths
+watch_path = ["src", "assets"]
+
+[web.resource]
+
+# Additional CSS style files
+style = []
+
+# Additional JavaScript files
+script = []
+
+# Service worker for PWA support
+service_worker = "./assets/pwa/sw.js"
+
+[web.resource.dev]
+
+# Javascript code file
+# serve: [dev-server] only
+script = []
+
+[bundle]
+
+# Bundle identifier
+identifier = "com.shopping-list-dioxus.app"
+
+# Publisher name
+publisher = "Shopping List App"
+
+# App icon
+icon = ["./assets/pwa/icon-32.png", "./assets/pwa/icon-192.png"]
+
+# App category
+category = "Productivity"
+
+# App short description
+short_description = "Simple shopping list manager"
+
+# App long description
+long_description = "A progressive web app for managing your shopping lists with offline support"
+
+[server]
+
+# Server port
+port = 8080
+
+# Server host
+ip = "0.0.0.0"
+
+[build]
+
+# Build output directory
+out_dir = "dist"
+
+# Assets directory
+assets_dir = "assets"
