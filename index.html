@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
   <title>dioxus | ⛺</title>
@@ -10,6 +10,11 @@
 <body>
   <div id="main"></div>
   <script type="module">
+    // Register service worker for PWA functionality
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js");
+    }
+
     import init from "/./assets/dioxus/name.js";
     init("/./assets/dioxus/name_bg.wasm").then(wasm => {
       if (wasm.__wbindgen_start == undefined) {
@@ -17,6 +22,5 @@
       }
     });
   </script>
-
 </body>
 </html>
