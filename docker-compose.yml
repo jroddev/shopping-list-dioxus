@@ -11,6 +11,8 @@ services:
     ports:
       - 5432:5432
   app:
+    # image: localhost/jroddev/shopping-list-dioxus:0.2
+    image: shopping-list-dioxus:dev
     build: "."
     environment:
       POSTGRES_PASSWORD: password
