@@ -160,24 +160,24 @@ pub fn ShoppingListsPage() -> Element {
                     }
                 }
             }
-            button {
-                onclick: move |_| {
-                    let mut list_state_clone = list_state.clone();
-                    let mut new_list_text_clone = new_list_text.clone();
-                    spawn(async move {
-                        let new_list_name = new_list_text_clone.read().clone();
-                        info!("insert list: {new_list_name}");
-                        match insert_new_list(new_list_name).await {
-                            Ok(_) => {
-                                refresh_lists(&mut list_state_clone).await;
-                                *new_list_text_clone.write() = "".to_string();
-                            },
-                            Err(_) => eprintln!("Error inserting List. Update the dialog"),
-                        }
-                    });
-                },
-                "+"
-            }
+            // button {
+            //     onclick: move |_| {
+            //         let mut list_state_clone = list_state.clone();
+            //         let mut new_list_text_clone = new_list_text.clone();
+            //         spawn(async move {
+            //             let new_list_name = new_list_text_clone.read().clone();
+            //             info!("insert list: {new_list_name}");
+            //             match insert_new_list(new_list_name).await {
+            //                 Ok(_) => {
+            //                     refresh_lists(&mut list_state_clone).await;
+            //                     *new_list_text_clone.write() = "".to_string();
+            //                 },
+            //                 Err(_) => eprintln!("Error inserting List. Update the dialog"),
+            //             }
+            //         });
+            //     },
+            //     "+"
+            // }
 
             {match current_lists {
                 Some(lists) => rsx! {

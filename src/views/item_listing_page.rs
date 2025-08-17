@@ -98,24 +98,24 @@ pub fn ItemListingPage(id: Uuid) -> Element {
                         }
                     }
                 }
-                button {
-                    onclick: move |_| {
-                        let mut item_state_clone = item_state.clone();
-                        let mut new_item_text_clone = new_item_text.clone();
-                        spawn(async move {
-                            let new_item_name = new_item_text_clone.read().clone();
-                            info!("insert item: {new_item_name}");
-                            match insert_new_item(id, new_item_name).await {
-                                Ok(_) => {
-                                    refresh_items(&id, &mut item_state_clone).await;
-                                    *new_item_text_clone.write() = "".to_string();
-                                },
-                                Err(_) => eprintln!("Error inserting Item. Update the dialog"),
-                            }
-                        });
-                    },
-                    "+"
-                }
+                // button {
+                //     onclick: move |_| {
+                //         let mut item_state_clone = item_state.clone();
+                //         let mut new_item_text_clone = new_item_text.clone();
+                //         spawn(async move {
+                //             let new_item_name = new_item_text_clone.read().clone();
+                //             info!("insert item: {new_item_name}");
+                //             match insert_new_item(id, new_item_name).await {
+                //                 Ok(_) => {
+                //                     refresh_items(&id, &mut item_state_clone).await;
+                //                     *new_item_text_clone.write() = "".to_string();
+                //                 },
+                //                 Err(_) => eprintln!("Error inserting Item. Update the dialog"),
+                //             }
+                //         });
+                //     },
+                //     "+"
+                // }
 
                 {items.iter().map(|item| {
                     let item_id = item.id;

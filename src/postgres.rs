@@ -113,7 +113,7 @@ pub async fn update_shopping_list_name(list_id: Uuid, new_name: String) -> Resul
 pub async fn get_list_items(list_id: Uuid) -> Result<Vec<Item>, sqlx::Error> {
     let pool = get_pg_pool().await?;
     let rows: Vec<PgRow> =
-        sqlx::query("SELECT * FROM items WHERE parent_id=$1 ORDER BY updated_at DESC")
+        sqlx::query("SELECT * FROM items WHERE parent_id=$1 ORDER BY created_at DESC")
             .bind(list_id)
             .fetch_all(&pool)
             .await?;
