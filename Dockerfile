@@ -1,16 +1,35 @@
-FROM rust:1.75 as builder
-WORKDIR /usr/src/shopping-list-dioxus
+FROM rust:1 AS chef
+RUN cargo install cargo-chef
+WORKDIR /app
+
+FROM chef AS planner
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
+
+####
+
+FROM chef AS builder
+COPY --from=planner /app/recipe.json recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
 
-RUN rustup target add wasm32-unknown-unknown
-RUN cargo install dioxus-cli
-RUN dx build --features web --release
+RUN cargo install dioxus-cli@0.7.0-rc.0
+ENV PATH="/.cargo/bin:$PATH"
 
-RUN cargo install --path . --features ssr
+# Create the final bundle folder. Bundle always executes in release mode with optimizations enabled
+RUN dx bundle --web --release
 
-FROM debian:bookworm-slim
-WORKDIR /usr/local/bin
-# RUN apt-get update && apt-get install -y extra-runtime-dependencies && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /usr/local/cargo/bin/shopping-list-dioxus /usr/local/bin/shopping-list-dioxus
-COPY --from=builder /usr/src/shopping-list-dioxus/dist /usr/local/bin/dist
-CMD ["shopping-list-dioxus"]
+#######
+
+FROM gcr.io/distroless/cc
+COPY --from=builder /app/target/dx/shopping-list-dioxus/release/web/ /usr/local/app
+
+# set our port and make sure to listen for all connections
+ENV PORT=8080
+ENV IP=0.0.0.0
+
+# expose the port 8080
+EXPOSE 8080
+
+WORKDIR /usr/local/app
+ENTRYPOINT [ "/usr/local/app/shopping-list-dioxus" ]
