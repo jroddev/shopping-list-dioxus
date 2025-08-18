@@ -13,7 +13,8 @@ var version = "v1.0.0::";
 */
 var offlineFundamentals = [
   // add here the files you want to cache
-  "favicon.ico",
+  // "favicon.ico",
+  // "icons/icon-32.png",
 ];
 
 /* The install event fires when the service worker is first installed.
@@ -40,6 +41,7 @@ self.addEventListener("install", function (event) {
            The method below will add all resources in `offlineFundamentals` to the
            cache, after making requests for them.
         */
+        // console.log("cache.addAll(", offlineFundamentals, ")");
         return cache.addAll(offlineFundamentals);
       })
       .then(function () {

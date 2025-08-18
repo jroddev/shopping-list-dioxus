@@ -16,8 +16,11 @@ mod postgres;
 mod views;
 
 const MAIN_CSS: Asset = asset!("/assets/styling/main.css");
-const FAVICON: Asset = asset!("/assets/favicon.ico");
-const MANIFEST: Asset = asset!("/assets/pwa/manifest.json");
+const ICON_32: Asset = asset!("/assets/icons/icon-32.png");
+const ICON_192: Asset = asset!("/assets/icons/icon-192.png");
+const ICON_410: Asset = asset!("/assets/icons/icon-410.png");
+const MANIFEST: Asset = asset!("/assets/manifest.json");
+const SERVICE_WORKER: Asset = asset!("/assets/service-worker.js");
 
 /// The Route enum defines the structure of internal routes in our app.
 #[derive(Debug, Clone, Routable, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -32,17 +35,31 @@ enum Route {
 fn main() {
     dioxus_logger::init(dioxus_logger::tracing::Level::INFO).expect("failed to init logger");
     dioxus::launch(App);
+    log::info!("App Started!");
 }
 
 /// App is the main component of our shopping list app.
 #[component]
 fn App() -> Element {
+    // template in the built hashed service-worker.js filename
+    let SERVICE_WORKER_LOADER = format!(
+        r#"
+        if ("serviceWorker" in navigator) {{
+            navigator.serviceWorker.register("{SERVICE_WORKER}");
+        }}
+    "#
+    );
     rsx! {
         document::Link { rel: "stylesheet", href: MAIN_CSS }
-        document::Link { rel: "icon", href: FAVICON }
+        document::Link { rel: "icon", href: ICON_32 }
+        document::Link { rel: "icon", href: ICON_192 }
+        document::Link { rel: "icon", href: ICON_410 }
         document::Link { rel: "manifest", href: MANIFEST }
         document::Meta { name: "viewport", content: "width=device-width, initial-scale=1.0" }
         document::Meta { name: "theme-color", content: "#2196f3" }
+        document::Script {
+            {SERVICE_WORKER_LOADER}
+        }
 
         Router::<Route> {}
     }
